@@ -55,8 +55,6 @@ Set-up
 library(knitr)  
 library(kableExtra)
 library(tidyverse)
-
-
 ```
 
 Read the data and take a first look
@@ -312,6 +310,66 @@ ggplot(plot2_data, aes(x=reorder(State, -Value), y=Value)) +
   theme(axis.text.x=element_text(angle=45,hjust=1)) +
   labs(x = "States", y = "Sales",
 title ="Organic Strawberry Sales ($) in 2021")
+
+
+```
+
+```{r}
+
+# View the structure of the dataset to verify the available columns
+str(strawberry)  # Check the data types of each column
+
+# Remove any problematic columns that are lists or matrices
+strawberry <- strawberry %>%
+  select_if(~!is.list(.) & !is.matrix(.))  # Remove any list or matrix columns
+
+# Data Cleaning
+strawberry_cleaned <- strawberry %>%
+  # Drop columns that may not be needed ('Ag District Code', 'County ANSI')
+  select(-c(`Ag District Code`, `County ANSI`)) %>%  # Only drop columns that exist in the dataset
+  # Convert 'Value' and 'CV (%)' columns to numeric, replacing non-numeric values with NA
+  mutate(Value = as.numeric(Value),
+         `CV (%)` = as.numeric(`CV (%)`)) %>%
+  # Fill missing values in specific columns with appropriate defaults to avoid dropping rows
+  mutate(
+    `State ANSI` = ifelse(is.na(`State ANSI`), -1, `State ANSI`),  # Fill missing 'State ANSI' with -1
+    `Ag District` = ifelse(is.na(`Ag District`), 'UNKNOWN', `Ag District`),  # Fill missing 'Ag District' with 'UNKNOWN'
+    County = ifelse(is.na(County), 'UNKNOWN', County)  # Fill missing 'County' with 'UNKNOWN'
+  ) %>%
+  # Remove duplicate rows to avoid redundant data
+  distinct() %>%
+  # Handle outliers: set 'Value' less than 0 to NA (assuming 'Value' should not be negative)
+  mutate(Value = ifelse(Value < 0, NA, Value)) %>%
+  # Remove rows with missing values in key columns ('Year', 'State', 'Value')
+  filter(!is.na(Year) & !is.na(State) & !is.na(Value)) %>%
+  # Convert 'Year' column to a factor (categorical) data type
+  mutate(Year = as.factor(Year)) %>%
+  # Remove rows with NA in 'CV (%)', if this column is considered important
+  filter(!is.na(`CV (%)`)) %>%
+  # Normalize 'CV (%)' to a range between [0, 1]
+  mutate(`CV (%)` = (`CV (%)` - min(`CV (%)`, na.rm = TRUE)) / 
+                    (max(`CV (%)`, na.rm = TRUE) - min(`CV (%)`, na.rm = TRUE)))
+
+# Data Exploration and Visualization
+# Plot the distribution of 'Value' across different years
+ggplot(strawberry_cleaned, aes(x = Year, y = Value)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Values by Year",
+       x = "Year",
+       y = "Value") +
+  theme_minimal()
+
+# Summary tables to understand the data
+summary_table <- strawberry_cleaned %>%
+  group_by(Year) %>%
+  summarise(
+    Mean_Value = mean(Value, na.rm = TRUE),
+    Count = n()
+  )
+print(summary_table)  # Print the summary table for understanding data trends
+
+# Save the cleaned dataset to a new CSV file
+write_csv(strawberry_cleaned, "strawberries25_v3_cleaned.csv")  # Save the cleaned data to a CSV file for analysis
 
 
 ```
