@@ -21,18 +21,26 @@ Acquire, explore, clean & structure, EDA
 **Questions**
 
 -   Where they are grown? By whom?
+Strawberries are grown in multiple states and counties across the U.S. For example, the data includes information about strawberry cultivation in Alabama, specifically in Bullock County, and agricultural districts like Black Belt.
+
 
 -   Are they really loaded with carcinogenic poisons?
+The dataset does not include information about pesticide or chemical use, so it is not possible to determine whether the strawberries contain carcinogenic substances.
 
 -   Are they really good for your health? Bad for your health?
+There is no information in the dataset about the nutritional value or health impact of strawberries, so this question cannot be answered directly from the data.
 
 -   Are organic strawberries carriers of deadly diseases?
+The dataset does not specify whether the strawberries are organic or contain any information regarding potential deadly diseases.
 
 -   When I go to the market should I buy conventional or organic strawberries?
+There is no information in the dataset about whether the strawberries are organic, so no recommendation can be made.
 
 -   Do Strawberry farmers make money?
+The data includes information about cultivated areas and operations, such as "ACRES BEARING" and "OPERATIONS WITH AREA GROWN," but it does not provide any economic data to analyze the profitability of strawberry farmers.
 
 -   How do the strawberries I buy get to my market?
+Strawberries are harvested, packed, and transported via cold chain logistics to keep them fresh until they reach the market.
 
 ## The data
 
