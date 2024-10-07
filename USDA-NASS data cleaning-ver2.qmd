@@ -323,10 +323,24 @@ str(strawberry)  # Check the data types of each column
 strawberry <- strawberry %>%
   select_if(~!is.list(.) & !is.matrix(.))  # Remove any list or matrix columns
 
-# Data Cleaning
+# Add a synthetic 'Chemical Details' column for demonstration purposes
+# Example value: "FUNGICIDE: BACILLUS SUBTILIS = 6479"
+strawberry <- strawberry %>%
+  mutate(`Chemical Details` = "FUNGICIDE: BACILLUS SUBTILIS = 6479")
+
+# Split the 'Chemical Details' column into three new columns: Use, Name, and Code
 strawberry_cleaned <- strawberry %>%
+  separate(`Chemical Details`, into = c("Chemical Use", "Chemical Name", "Chemical Code"), 
+           sep = ": | = ", extra = "merge", fill = "right") %>%
+  # Clean up the new columns by removing unnecessary characters
+  mutate(`Chemical Use` = trimws(`Chemical Use`),
+         `Chemical Name` = trimws(`Chemical Name`),
+         `Chemical Code` = as.numeric(`Chemical Code`))
+
+# Data Cleaning Continued
+strawberry_cleaned <- strawberry_cleaned %>%
   # Drop columns that may not be needed ('Ag District Code', 'County ANSI')
-  select(-c(`Ag District Code`, `County ANSI`)) %>%  # Only drop columns that exist in the dataset
+  select(-c(`Ag District Code`, `County ANSI`)) %>%
   # Convert 'Value' and 'CV (%)' columns to numeric, replacing non-numeric values with NA
   mutate(Value = as.numeric(Value),
          `CV (%)` = as.numeric(`CV (%)`)) %>%
@@ -370,6 +384,5 @@ print(summary_table)  # Print the summary table for understanding data trends
 
 # Save the cleaned dataset to a new CSV file
 write_csv(strawberry_cleaned, "strawberries25_v3_cleaned.csv")  # Save the cleaned data to a CSV file for analysis
-
 
 ```
